@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_audio_query/flutter_audio_query.dart';
 import 'package:flutter_music_player/songWidget.dart';
 import 'package:flutter_music_player/widget.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -50,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         case AudioManagerEvents.ended:
           audioManagerInstance.next();
           setState(() {
-            
+
           });
           break;
         default:
@@ -61,6 +62,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -100,36 +104,41 @@ class _MyAppState extends State<MyApp> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Container(
-              height: 500,
-              child: FutureBuilder(
-                future: FlutterAudioQuery()
-                    .getSongs(sortType: SongSortType.RECENT_YEAR),
-                builder: (context, snapshot) {
-                  List<SongInfo> songInfo = snapshot.data;
-                  if (snapshot.hasData) return SongWidget(songList: songInfo);
-                  return Container(
-                    height: MediaQuery.of(context).size.height * 0.4,
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          CircularProgressIndicator(),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            "Loading....",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )
-                        ],
+            Expanded(
+              flex: 10,
+              child: Container(
+                child: FutureBuilder(
+                  future: FlutterAudioQuery()
+                      .getSongs(sortType: SongSortType.DEFAULT),
+                  builder: (context, snapshot) {
+                    List<SongInfo> songInfo = snapshot.data;
+                    if (snapshot.hasData) return SongWidget(songList: songInfo);
+                    return Container(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            CircularProgressIndicator(),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                              "Loading....",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-            bottomPanel(),
+            Expanded(
+                flex: 2,
+                child: bottomPanel()
+            ),
           ],
         ),
       ),
@@ -201,59 +210,63 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget bottomPanel() {
-    return Column(children: <Widget>[
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: songProgress(context),
-      ),
-      Container(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Container(
+      //height: 800,
+      child: Column(
           children: <Widget>[
-            CircleAvatar(
-              child: Center(
-                child: IconButton(
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: songProgress(context),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              CircleAvatar(
+                child: Center(
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.skip_previous,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => audioManagerInstance.previous()),
+                ),
+                backgroundColor: Colors.cyan.withOpacity(0.3),
+              ),
+              CircleAvatar(
+                radius: 30,
+                child: Center(
+                  child: IconButton(
+                    onPressed: () async {
+                      audioManagerInstance.playOrPause();
+                    },
+                    padding: const EdgeInsets.all(0.0),
                     icon: Icon(
-                      Icons.skip_previous,
+                      audioManagerInstance.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
                       color: Colors.white,
                     ),
-                    onPressed: () => audioManagerInstance.previous()),
-              ),
-              backgroundColor: Colors.cyan.withOpacity(0.3),
-            ),
-            CircleAvatar(
-              radius: 30,
-              child: Center(
-                child: IconButton(
-                  onPressed: () async {
-                    audioManagerInstance.playOrPause();
-                  },
-                  padding: const EdgeInsets.all(0.0),
-                  icon: Icon(
-                    audioManagerInstance.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                    color: Colors.white,
                   ),
                 ),
               ),
-            ),
-            CircleAvatar(
-              backgroundColor: Colors.cyan.withOpacity(0.3),
-              child: Center(
-                child: IconButton(
-                    icon: Icon(
-                      Icons.skip_next,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => audioManagerInstance.next()),
+              CircleAvatar(
+                backgroundColor: Colors.cyan.withOpacity(0.3),
+                child: Center(
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.skip_next,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => audioManagerInstance.next()),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ]);
+      ]),
+    );
   }
 }
 

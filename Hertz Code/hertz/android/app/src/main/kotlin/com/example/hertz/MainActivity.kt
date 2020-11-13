@@ -1,4 +1,4 @@
-package com.aeologic.flutter_music_player
+package com.example.hertz
 
 import io.flutter.embedding.android.FlutterActivity
 

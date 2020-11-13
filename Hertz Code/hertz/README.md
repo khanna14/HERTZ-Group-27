@@ -1,4 +1,4 @@
-# flutter_music_player
+# hertz
 
 A new Flutter application.
 

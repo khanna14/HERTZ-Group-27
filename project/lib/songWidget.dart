@@ -1,7 +1,8 @@
 //import 'dart:io';
 import 'package:flutter/painting.dart';
+import 'package:flutter_music_player/screens/home_tab.dart';
 
-import 'homepage.dart';
+import 'screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_query/flutter_audio_query.dart';
 //import 'package:flutter_music_player/widget.dart';
@@ -24,9 +25,7 @@ class SongWidget extends StatelessWidget {
                     .start("file://${song.filePath}", song.title,
                         desc: song.displayName,
                         auto: true,
-                        cover: "assets/images/p4.jpg"
-                )
-
+                        cover: "assets/images/p4.jpg")
                     .then((err) {
                   print(err);
                 });
